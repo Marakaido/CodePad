@@ -24,12 +24,12 @@
                 <MenuItem mnemonicParsing="false" text="Exit" onAction="#exit" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
+          <Menu mnemonicParsing="false" text="Edit" onShowing="#bindMenuItemsAvailability">
             <items>
-                <MenuItem mnemonicParsing="false" text="Copy" onAction="#copy" />
-                <MenuItem mnemonicParsing="false" text="Paste" onAction="#paste" />
-                <MenuItem mnemonicParsing="false" text="Cut" onAction="#cut" />
-                <MenuItem mnemonicParsing="false" text="Delete" onAction="#delete" />
+                <MenuItem fx:id="copyMenuItem" mnemonicParsing="false" text="Copy" onAction="#copy" />
+                <MenuItem fx:id="pasteMenuItem" mnemonicParsing="false" text="Paste" onAction="#paste" />
+                <MenuItem fx:id="cutMenuItem" mnemonicParsing="false" text="Cut" onAction="#cut" />
+                <MenuItem fx:id="deleteMenuItem" mnemonicParsing="false" text="Delete" onAction="#delete" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">

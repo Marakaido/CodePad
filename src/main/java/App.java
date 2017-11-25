@@ -7,8 +7,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.input.Clipboard;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -25,8 +27,6 @@ import java.util.Optional;
 import static javafx.scene.control.Alert.*;
 
 public class App extends Application {
-    @FXML public TabPane editorTabPane;
-
     public static void main(String[] args) {
         launch(args);
     }
@@ -41,6 +41,19 @@ public class App extends Application {
                 App.class.getResource("keywords.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    @FXML public void initialize() {
+    }
+
+    public void bindMenuItemsAvailability() {
+        EditorArea editorArea = getActiveFileTab().getEditorArea();
+
+        boolean hasSelection = editorArea.getSelection().getLength() == 0;
+        copyMenuItem.disableProperty().setValue(hasSelection);
+        pasteMenuItem.disableProperty().setValue(hasSelection);
+        cutMenuItem.disableProperty().setValue(hasSelection);
+        deleteMenuItem.disableProperty().setValue(hasSelection);
     }
 
     public void addNewTab(ActionEvent actionEvent) {
@@ -148,7 +161,14 @@ public class App extends Application {
         return fileTab.get();
     }
 
-    private List<FileTab> fileTabs = new ArrayList<>(10);
+    private final List<FileTab> fileTabs = new ArrayList<>(10);
     private Stage stage;
-    private Charset defaultCharset = Charset.forName("UTF-8");
+    private final Charset defaultCharset = Charset.forName("UTF-8");
+    private final Clipboard clipboard = Clipboard.getSystemClipboard();
+
+    @FXML private TabPane editorTabPane;
+    @FXML private MenuItem copyMenuItem;
+    @FXML private MenuItem pasteMenuItem;
+    @FXML private MenuItem cutMenuItem;
+    @FXML private MenuItem deleteMenuItem;
 }
