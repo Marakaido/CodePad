@@ -1,3 +1,9 @@
 .tab-header-area {
   -fx-padding: 0 50 0 0;
 }
+
+.styled-text-area {
+    -fx-font-size: 15;
+    -fx-highlight-fill: #d2d2d2;
+    -fx-text-fill: #FFFFFF;
+}

@@ -9,7 +9,6 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import editor.EditorArea?>
 
 <BorderPane fx:controller="App" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1">
    <top>
@@ -17,14 +16,20 @@
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
-                  <MenuItem mnemonicParsing="false" text="New" />
-                  <MenuItem mnemonicParsing="false" text="Open" />
-              <MenuItem mnemonicParsing="false" text="Close" />
+                <MenuItem mnemonicParsing="false" text="New" onAction="#createAndOpenFileInNewTab" />
+                <MenuItem mnemonicParsing="false" text="Open" onAction="#openFileInNewTab" />
+                <MenuItem mnemonicParsing="false" text="Open in new window" onAction="#openFileInNewWindow" />
+                <MenuItem mnemonicParsing="false" text="Save" onAction="#saveFileInCurrentTab" />
+                <MenuItem mnemonicParsing="false" text="Save and exit" onAction="#saveFileInCurrentTabAndExit" />
+                <MenuItem mnemonicParsing="false" text="Exit" onAction="#exit" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">
             <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
+                <MenuItem mnemonicParsing="false" text="Copy" onAction="#copy" />
+                <MenuItem mnemonicParsing="false" text="Paste" onAction="#paste" />
+                <MenuItem mnemonicParsing="false" text="Cut" onAction="#cut" />
+                <MenuItem mnemonicParsing="false" text="Delete" onAction="#delete" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
@@ -42,11 +47,6 @@
                  <children>
                      <TabPane fx:id="editorTabPane" tabClosingPolicy="SELECTED_TAB" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
                          <tabs>
-                             <Tab text="new">
-                                 <content>
-                                     <EditorArea fx:id="codeArea" />
-                                 </content>
-                             </Tab>
                          </tabs>
                      </TabPane>
                      <Button onAction="#addNewTab" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" text="+" />
