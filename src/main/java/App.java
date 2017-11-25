@@ -1,20 +1,27 @@
 import editor.EditorArea;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static javafx.scene.control.Alert.*;
 
 public class App extends Application {
     @FXML public TabPane editorTabPane;
@@ -48,15 +55,11 @@ public class App extends Application {
         List<File> list = fileChooser.showOpenMultipleDialog(stage);
         list.stream().filter(Objects::nonNull).forEach(file -> {
             Tab tab = new Tab(file.getName());
-            FileTab fileTab = new FileTab(file, charset, tab, new EditorArea());
+            FileTab fileTab = new FileTab(file, defaultCharset, tab, new EditorArea());
             fileTabs.add(fileTab);
             editorTabPane.getTabs().add(tab);
         });
     }
-
-    private List<FileTab> fileTabs = new ArrayList<>(10);
-    private Stage stage;
-    private Charset charset = Charset.forName("UTF-8");
 
     public void createAndOpenFileInNewTab(ActionEvent actionEvent) {
     }
@@ -65,12 +68,24 @@ public class App extends Application {
     }
 
     public void saveFileInCurrentTab(ActionEvent actionEvent) {
+        try {
+            Tab activeTab = editorTabPane.getSelectionModel().getSelectedItem();
+            FileTab fileTab = fileTabs.stream().filter(item -> item.getTab() == activeTab).findFirst().get();
+            byte[] data = fileTab.getData();
+            Files.write(fileTab.getFile().toPath(), fileTab.getData(), StandardOpenOption.WRITE);
+        }
+        catch (IOException e) {
+            alert("Error", "Failed to save file", AlertType.ERROR);
+        }
     }
 
     public void saveFileInCurrentTabAndExit(ActionEvent actionEvent) {
+        saveFileInCurrentTab(actionEvent);
+        exit(actionEvent);
     }
 
     public void exit(ActionEvent actionEvent) {
+        Platform.exit();
     }
 
     public void copy(ActionEvent actionEvent) {
@@ -84,4 +99,16 @@ public class App extends Application {
 
     public void delete(ActionEvent actionEvent) {
     }
+
+    private void alert(String title, String header, AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+
+        alert.showAndWait();
+    }
+
+    private List<FileTab> fileTabs = new ArrayList<>(10);
+    private Stage stage;
+    private Charset defaultCharset = Charset.forName("UTF-8");
 }

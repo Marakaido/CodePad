@@ -42,7 +42,10 @@ public class FileTab {
     public EditorArea getEditorArea() { return editorArea; }
     public void setEditorArea(EditorArea editorArea) { this.editorArea = editorArea; }
 
-    public byte[] getData() { return data; }
+    public byte[] getData() {
+        this.data = editorArea.getText().getBytes(charset);
+        return data;
+    }
 
     public boolean hasFile() { return file != null; }
 
@@ -50,9 +53,6 @@ public class FileTab {
 
     public void updateText() {
         editorArea.replaceText(0, 0, new String(data, charset));
-    }
-    public void updateData() {
-        this.data = editorArea.getText().getBytes(charset);
     }
 
     private File file;
