@@ -20,6 +20,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static javafx.scene.control.Alert.*;
 
@@ -102,15 +103,23 @@ public class App extends Application {
     }
 
     public void copy(ActionEvent actionEvent) {
+        FileTab fileTab = getActiveFileTab();
+        fileTab.getEditorArea().copy();
     }
 
     public void paste(ActionEvent actionEvent) {
+        FileTab fileTab = getActiveFileTab();
+        fileTab.getEditorArea().paste();
     }
 
     public void cut(ActionEvent actionEvent) {
+        FileTab fileTab = getActiveFileTab();
+        fileTab.getEditorArea().cut();
     }
 
     public void delete(ActionEvent actionEvent) {
+        FileTab fileTab = getActiveFileTab();
+        fileTab.getEditorArea().deleteText(fileTab.getEditorArea().getSelection());
     }
 
     private void alert(String title, String header, AlertType type) {
@@ -130,7 +139,13 @@ public class App extends Application {
 
     private void saveFile(FileTab fileTab) throws IOException {
         if(!fileTab.hasFile()) throw new IllegalStateException();
-        Files.write(fileTab.getFile().toPath(), fileTab.getData(), StandardOpenOption.CREATE);
+        Files.write(fileTab.getFile().toPath(), fileTab.getData(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    private FileTab getActiveFileTab() {
+        final Tab activeTab = editorTabPane.getSelectionModel().getSelectedItem();
+        Optional<FileTab> fileTab = fileTabs.stream().filter(item -> item.getTab().equals(activeTab)).findFirst();
+        return fileTab.get();
     }
 
     private List<FileTab> fileTabs = new ArrayList<>(10);
