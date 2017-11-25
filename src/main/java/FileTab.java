@@ -23,9 +23,12 @@ public class FileTab {
     public File getFile() { return file; }
     public void setFile(File file, Charset charset) {
         try {
-            this.data = Files.readAllBytes(file.toPath());
+            if(!file.exists())
+                this.data = Files.readAllBytes(file.toPath());
+            else this.data = new byte[0];
             this.file = file;
             this.charset = charset;
+            tab.setText(file.getName());
             this.updateText();
         }
         catch(IOException e) {

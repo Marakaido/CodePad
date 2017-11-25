@@ -78,17 +78,14 @@ public class App extends Application {
         try {
             Tab activeTab = editorTabPane.getSelectionModel().getSelectedItem();
             FileTab fileTab = fileTabs.stream().filter(item -> item.getTab() == activeTab).findFirst().get();
-            if(fileTab.hasFile())
-                Files.write(fileTab.getFile().toPath(), fileTab.getData(), StandardOpenOption.WRITE);
-            else {
+            if(!fileTab.hasFile()) {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Save file");
                 File file = fileChooser.showSaveDialog(stage);
-                if(file != null) {
+                if(file != null)
                     fileTab.setFile(file, defaultCharset);
-                    Files.write(file.toPath(), fileTab.getData(), StandardOpenOption.CREATE_NEW);
-                }
             }
+            saveFile(fileTab);
         }
         catch (IOException e) {
             alert("Error", "Failed to save file", AlertType.ERROR);
@@ -129,6 +126,11 @@ public class App extends Application {
         FileTab fileTab = new FileTab(file, defaultCharset, tab, new EditorArea());
         fileTabs.add(fileTab);
         editorTabPane.getTabs().add(tab);
+    }
+
+    private void saveFile(FileTab fileTab) throws IOException {
+        if(!fileTab.hasFile()) throw new IllegalStateException();
+        Files.write(fileTab.getFile().toPath(), fileTab.getData(), StandardOpenOption.CREATE);
     }
 
     private List<FileTab> fileTabs = new ArrayList<>(10);
