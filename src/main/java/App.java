@@ -44,6 +44,7 @@ public class App extends Application {
     }
 
     @FXML public void initialize() {
+        addNewTab(new ActionEvent());
     }
 
     public void bindMenuItemsAvailability() {
