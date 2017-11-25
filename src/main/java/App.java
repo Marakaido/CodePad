@@ -53,15 +53,22 @@ public class App extends Application {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open file");
         List<File> list = fileChooser.showOpenMultipleDialog(stage);
-        list.stream().filter(Objects::nonNull).forEach(file -> {
-            Tab tab = new Tab(file.getName());
-            FileTab fileTab = new FileTab(file, defaultCharset, tab, new EditorArea());
-            fileTabs.add(fileTab);
-            editorTabPane.getTabs().add(tab);
-        });
+        list.stream().filter(Objects::nonNull).forEach(this::loadFile);
     }
 
     public void createAndOpenFileInNewTab(ActionEvent actionEvent) {
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("New file");
+            File file = fileChooser.showSaveDialog(stage);
+            if (file != null) {
+                if (!file.exists()) file.createNewFile();
+                loadFile(file);
+            }
+        }
+        catch(IOException e) {
+            alert("Error", "Could not create file", AlertType.ERROR);
+        }
     }
 
     public void openFileInNewWindow(ActionEvent actionEvent) {
@@ -71,8 +78,17 @@ public class App extends Application {
         try {
             Tab activeTab = editorTabPane.getSelectionModel().getSelectedItem();
             FileTab fileTab = fileTabs.stream().filter(item -> item.getTab() == activeTab).findFirst().get();
-            byte[] data = fileTab.getData();
-            Files.write(fileTab.getFile().toPath(), fileTab.getData(), StandardOpenOption.WRITE);
+            if(fileTab.hasFile())
+                Files.write(fileTab.getFile().toPath(), fileTab.getData(), StandardOpenOption.WRITE);
+            else {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Save file");
+                File file = fileChooser.showSaveDialog(stage);
+                if(file != null) {
+                    fileTab.setFile(file, defaultCharset);
+                    Files.write(file.toPath(), fileTab.getData(), StandardOpenOption.CREATE_NEW);
+                }
+            }
         }
         catch (IOException e) {
             alert("Error", "Failed to save file", AlertType.ERROR);
@@ -106,6 +122,13 @@ public class App extends Application {
         alert.setHeaderText(header);
 
         alert.showAndWait();
+    }
+
+    private void loadFile(File file) {
+        Tab tab = new Tab(file.getName());
+        FileTab fileTab = new FileTab(file, defaultCharset, tab, new EditorArea());
+        fileTabs.add(fileTab);
+        editorTabPane.getTabs().add(tab);
     }
 
     private List<FileTab> fileTabs = new ArrayList<>(10);
