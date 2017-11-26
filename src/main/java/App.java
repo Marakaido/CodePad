@@ -33,14 +33,7 @@ public class App extends Application {
 
     @Override public void start(Stage primaryStage) throws Exception {
         this.stage = primaryStage;
-        Parent root = FXMLLoader.load(App.class.getResource("main.fxml"));
-        primaryStage.setTitle("Codepad");
-        Scene scene = new Scene(root, 600, 400);
-        scene.getStylesheets().addAll(
-                App.class.getResource("style.css").toExternalForm(),
-                App.class.getResource("keywords.css").toExternalForm());
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        buildStage(primaryStage);
     }
 
     @FXML public void initialize() {
@@ -87,6 +80,13 @@ public class App extends Application {
     }
 
     public void openFileInNewWindow(ActionEvent actionEvent) {
+        try {
+            Stage stage = new Stage();
+            buildStage(stage);
+        }
+        catch (IOException e) {
+            alert("Error", "Could not open new window", AlertType.ERROR);
+        }
     }
 
     public void saveFileInCurrentTab(ActionEvent actionEvent) {
@@ -160,6 +160,17 @@ public class App extends Application {
         final Tab activeTab = editorTabPane.getSelectionModel().getSelectedItem();
         Optional<FileTab> fileTab = fileTabs.stream().filter(item -> item.getTab().equals(activeTab)).findFirst();
         return fileTab.get();
+    }
+
+    private void buildStage(Stage primaryStage) throws IOException {
+        Parent root = FXMLLoader.load(App.class.getResource("main.fxml"));
+        primaryStage.setTitle("Codepad");
+        Scene scene = new Scene(root, 600, 400);
+        scene.getStylesheets().addAll(
+                App.class.getResource("style.css").toExternalForm(),
+                App.class.getResource("keywords.css").toExternalForm());
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     private final List<FileTab> fileTabs = new ArrayList<>(10);
