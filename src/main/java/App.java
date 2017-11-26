@@ -6,10 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -52,9 +49,15 @@ public class App extends Application {
 
     public void addNewTab(ActionEvent actionEvent) {
         Tab tab = new Tab("new");
-        FileTab fileTab = new FileTab(tab, new EditorArea());
+        EditorArea editorArea = new EditorArea();
+        FileTab fileTab = new FileTab(tab, editorArea);
+        editorArea.richChanges().subscribe(arg -> {
+            if(fileTab.isModified()) statusLabel.setText("modified");
+            else statusLabel.setText("saved");
+        });
         this.fileTabs.add(fileTab);
         this.editorTabPane.getTabs().add(tab);
+        statusLabel.setText("new");
     }
 
     public void openFileInNewTab(ActionEvent actionEvent) {
@@ -62,6 +65,7 @@ public class App extends Application {
         fileChooser.setTitle("Open file");
         List<File> list = fileChooser.showOpenMultipleDialog(stage);
         list.stream().filter(Objects::nonNull).forEach(this::loadFile);
+        statusLabel.setText("saved");
     }
 
     public void createAndOpenFileInNewTab(ActionEvent actionEvent) {
@@ -73,6 +77,7 @@ public class App extends Application {
                 if (!file.exists()) file.createNewFile();
                 loadFile(file);
             }
+            statusLabel.setText("new");
         }
         catch(IOException e) {
             alert("Error", "Could not create file", AlertType.ERROR);
@@ -101,6 +106,7 @@ public class App extends Application {
                     fileTab.setFile(file, defaultCharset);
             }
             saveFile(fileTab);
+            statusLabel.setText("saved");
         }
         catch (IOException e) {
             alert("Error", "Failed to save file", AlertType.ERROR);
@@ -145,14 +151,22 @@ public class App extends Application {
     }
 
     private void loadFile(File file) {
-        Tab tab = new Tab(file.getName());
-        FileTab fileTab = new FileTab(file, defaultCharset, tab, new EditorArea());
+        final Tab tab = new Tab(file.getName());
+        final EditorArea editorArea = new EditorArea();
+        final FileTab fileTab = new FileTab(file, defaultCharset, tab, editorArea);
+        editorArea.richChanges().subscribe(arg -> {
+           if(fileTab.isModified()) statusLabel.setText("modified");
+           else statusLabel.setText("saved");
+        });
+
         fileTabs.add(fileTab);
         editorTabPane.getTabs().add(tab);
+        editorTabPane.getSelectionModel().select(tab);
     }
 
     private void saveFile(FileTab fileTab) throws IOException {
         if(!fileTab.hasFile()) throw new IllegalStateException();
+        fileTab.updateData();
         Files.write(fileTab.getFile().toPath(), fileTab.getData(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
@@ -183,4 +197,5 @@ public class App extends Application {
     @FXML private MenuItem pasteMenuItem;
     @FXML private MenuItem cutMenuItem;
     @FXML private MenuItem deleteMenuItem;
+    @FXML private Label statusLabel;
 }
